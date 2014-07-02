@@ -1,0 +1,8 @@
+{
+    name: "openworld2d server",
+    description: "Server for the openworld2d game",
+    main: "main.js",
+    dependencies: {
+        "socket.io": "*"
+    }
+}
