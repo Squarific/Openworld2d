@@ -1,0 +1,22 @@
+html, body {
+	overflow:hidden;
+	min-height:100%;
+	padding:0;
+	margin:0;
+}
+
+#openworld2d_container {
+	position:fixed;
+	left:0;
+	top:0;
+	right:0;
+	bottom:0;
+}
+
+.preloading {
+	padding:20%;
+}
+
+.button {
+	cursor:pointer;
+}
