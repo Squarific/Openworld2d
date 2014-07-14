@@ -9,7 +9,7 @@ GraphNetwork.prototype.samePoint = function samePoint (point1, point2) {
 	return false;
 };
 
-GraphNetowrk.prototype.sameLine = function sameLine (line1, line2) {
+GraphNetwork.prototype.sameLine = function sameLine (line1, line2) {
 	if ((this.samePoint(line1[0], line2[0]) && this.samePoint(line1[1], line2[1])) ||
 		(this.samePoint(line1[1], line2[0]) && this.samePoint(line1[0], line2[1]))) {
 		return true;
@@ -42,6 +42,7 @@ GraphNetwork.prototype.addNode = function addNode (node, line) {
 	this.network[node.x][node.y].push(line);
 };
 
+var module;
 if (module && module.exports) {
 	module.exports = HeightMap;
 }

@@ -1,5 +1,5 @@
 function HeightMap (settings) {
-	this.settings = this.normalizeDefaults(settings, this.defaultSettings);
+	this.settings = utils.normalizeDefaults(settings, this.defaultSettings);
 	if (Perlin && this.settings.noiseType === "perlin") {
 		this.noise = new Perlin(settings.seed).simplex2;
 	} else if (typeof this.settings.noiseFunction === "function") {
@@ -15,23 +15,12 @@ HeightMap.prototype.getHeight = function getHeight (x, y) {
 
 HeightMap.prototype.defaultSettings = {
 	seed: Math.random(),
-	zoomX: 1,
-	zoomY: 1,
+	zoomX: 500,
+	zoomY: 500,
 	noiseType: "perlin"
 };
 
-OpenWorld2d.prototype.normalizeDefaults = function normalizeDefaults (target, defaults) {
-	var normalized = {};
-	for (var k in defaults) {
-		if (typeof defaults[k] === "object") {
-			normalized[k] = this.normalizeDefaults(target[k], defaults[k]);
-		} else {
-			normalized[k] = target[k] || defaults[k];
-		}
-	}
-	return normalized;
-};
-
+var module;
 if (module && module.exports) {
 	module.exports = HeightMap;
 }

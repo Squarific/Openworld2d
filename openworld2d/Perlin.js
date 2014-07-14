@@ -289,3 +289,8 @@ function Perlin (seedIn){
 	   v);
 	};
 };
+
+var module;
+if (module && module.exports) {
+	module.exports = Perlin;
+}

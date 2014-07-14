@@ -1,4 +1,4 @@
-var requires = ["GraphNetwork", "Perlin", "HeightMap", "utils", "OpenWorld2d", "requestAnimationFrame"];
+var requires = ["GraphNetwork", "Perlin", "HeightMap", "TrainManager", "utils", "OpenWorld2d", "requestAnimationFrame"];
 
 for (var req = 0; req < requires.length; req++) {
 	if (typeof this[requires[req]] == "undefined") {
@@ -6,6 +6,4 @@ for (var req = 0; req < requires.length; req++) {
 	}
 }
 
-document.addEventListener("load", function () {
-	var openworld2dclient = new OpenWorld2dClient(document.getElementById("openworld2d_container"));
-})
+var openworld2dclient = new OpenWorld2dClient(document.getElementById("openworld2d_container"));

@@ -1,8 +1,6 @@
 function OpenWorld2dClient (container) {
 	this.container = container;
-	this.openWorld2d = new OpenWorld2d();
-	this.openWorld2dRenderer = new OpenWorld2dRenderer(container);
-	this.openView("mainstartmenu");
+	this.openView("mainStartMenu");
 }
 
 OpenWorld2dClient.prototype.camera = {
@@ -14,9 +12,16 @@ OpenWorld2dClient.prototype.camera = {
 OpenWorld2dClient.prototype.gameLoop = function gameLoop () {
 	this.openWorld2d.updateWorld();
 	this.openWorld2dRenderer.draw(this.openWorld2d, this.camera);
-	this.draw();
 	if (this.keepLooping) {
 		requestAnimationFrame(this.gameLoop.bind(this));
+	}
+};
+
+OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame () {
+	if (!this.keepLooping) {
+		this.openWorld2d = new OpenWorld2d;
+		this.openWorld2dRenderer = new OpenWorld2dRenderer(this.container);
+		this.startLoop();
 	}
 };
 
@@ -28,34 +33,38 @@ OpenWorld2dClient.prototype.startLoop = function startLoop () {
 OpenWorld2dClient.prototype.openView = function openView (viewName) {
 	if (typeof this.views[viewName] === "function") {
 		this.views[viewName](this);
+	} else {
+		console.log("View doesn't exist: ", viewName);
 	}
 };
 
 OpenWorld2dClient.prototype.views = {
 	mainStartMenu: function (openworld2dclient) {
-		this.canvas.style.display = "none";
-		container.classname = "mainmenu";
-		container.appendChild(utils.gui.createButton({
+		utils.removeChildren(openworld2dclient.container);
+		openworld2dclient.container.classname = "mainmenu";
+		openworld2dclient.container.appendChild(utils.gui.createButton({
 			className: "button disabledbutton mainmenubutton",
 			innerText: "New singleplayer game"
-		}, openworld2dclients.newSinglePlayerGame));
-		container.appendChild(utils.gui.createButton({
+		}, function () {
+			openworld2dclient.newSinglePlayerGame();
+		}));
+		openworld2dclient.container.appendChild(utils.gui.createButton({
 			className: "button disabledbutton mainmenubutton",
 			innerText: "Load singleplayer game"
 		}, function () {
-			openworld2dclients.openView("singleplayersavegames");
+			openworld2dclient.openView("singleplayersavegames");
 		}));
-		container.appendChild(utils.gui.createButton({
+		openworld2dclient.container.appendChild(utils.gui.createButton({
 			className: "button disabledbutton mainmenubutton",
 			innerText: "Multiplayer"
 		}, function () {
-			openworld2dclients.openView("multiplayer");
+			openworld2dclient.openView("multiplayer");
 		}));
-		container.appendChild(utils.gui.createButton({
+		openworld2dclient.container.appendChild(utils.gui.createButton({
 			className: "button disabledbutton mainmenubutton",
 			innerText: "Credits"
 		}, function () {
-			openworld2dclients.openView("credits");
+			openworld2dclient.openView("credits");
 		}));
 	}
 };
