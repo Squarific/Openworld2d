@@ -1,6 +1,8 @@
 function OpenWorld2dRenderer (container) {
 	this.container = container;
 	this.initContainer(this.container);
+	document.addEventListener("resize", this.resizeCanvas.bind(this));
+	this.resizeCanvas();
 }
 
 OpenWorld2dRenderer.prototype.initContainer = function initContainer (container) {
@@ -28,4 +30,9 @@ OpenWorld2dRenderer.prototype.renderMap = function renderMap (heightMap, camera)
 		}
 	}
 	this.ctx.putImageData(imageData, 0, 0);
+};
+
+OpenWorld2dRenderer.prototype.resizeCanvas = function resizeCanvas () {
+	this.canvas.width = this.container.offsetWidth;
+	this.canvas.height = this.container.offsetHeight;
 };
