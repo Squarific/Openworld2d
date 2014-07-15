@@ -1,7 +1,7 @@
 function OpenWorld2dRenderer (container) {
 	this.container = container;
 	this.initContainer(this.container);
-	document.addEventListener("resize", this.resizeCanvas.bind(this));
+	window.addEventListener("resize", this.resizeCanvas.bind(this));
 	this.resizeCanvas();
 }
 
