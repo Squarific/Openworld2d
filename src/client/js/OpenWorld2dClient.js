@@ -39,6 +39,7 @@ OpenWorld2dClient.prototype.handleMouseAndTouchDown = function handleMouseAndTou
 	this.data.lastMovePosition[0] = event.screenX || event.changedTouches[0].screenX;
 	this.data.lastMovePosition[1] = event.screenY || event.changedTouches[0].screenY;
 	this.moving = true;
+	this.openWorld2dRenderer.canvas.style.cursor = "move";
 };
 
 OpenWorld2dClient.prototype.handleMouseAndTouchMove = function handleMouseAndTouchMove (event) {
@@ -52,6 +53,7 @@ OpenWorld2dClient.prototype.handleMouseAndTouchMove = function handleMouseAndTou
 
 OpenWorld2dClient.prototype.handleMouseAndTouchUp = function handleMouseAndTouchUp (event) {
 	this.moving = false;
+	this.openWorld2dRenderer.canvas.style.cursor = "";
 };
 
 OpenWorld2dClient.prototype.startLoop = function startLoop () {
