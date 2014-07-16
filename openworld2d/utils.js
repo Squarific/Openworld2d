@@ -1,10 +1,31 @@
 var utils = utils || {};
 utils.gui = {};
 
+/*
+	gradient = [{
+		min: 0,
+		max: 0.5,
+		start: [255, 255, 255],
+		end: [111, 100, 0]
+	}];
+*/
+utils.colorFromGradient = function (gradient, value) {
+	for (var k = 0; k < gradient.length; k++) {
+		if (gradient[k].min <= value && gradient[k].max >= value) {
+			return this.interPolateMulti(gradient[k].start, gradient[k].end, this.normalizeValue(value, gradient[k].min, gradient[k].max));
+		} else if (gradient[k + 1] && gradient[k + 1].min > value) {
+			// If the next gradient is too hight, interpolate between two gradients
+			return this.interPolateMulti(gradient[k].end, gradient[k + 1].start, this.normalizeValue(value, gradient[k].max, gradient[k + 1].min));
+		}
+	}
+	throw "No color matched value: " + value + " gradient: " + JSON.stringify(gradient);
+	return;
+};
+
 utils.interPolateValues = function interPolateValues (values, value) {
 	for (var k = 0; k < values.length; k++) {
-		if (values.min <= value && values.max >= value) {
-			return this.interPolate(values.start, values.end, this.normalizeValue(value, values.min, values.max));
+		if (values[k].min <= value && values[k].max >= value) {
+			return this.interPolate(values[k].start, values[k].end, this.normalizeValue(value, values[k].min, values[k].max));
 		}
 	}
 	return 0;
@@ -14,11 +35,19 @@ utils.interPolate = function interPolate (start, end, value) {
 	return start + (end - start) * value;
 };
 
+utils.interPolateMulti = function interPolateMulti (starts, ends, value) {
+	var interpolated = [];
+	for (var k = 0; k < starts.length; k++) {
+		interpolated[k] = this.interPolate(starts[k], ends[k], value);
+	}
+	return interpolated;
+};
+
 utils.normalizeDefaults = function normalizeDefaults (target, defaults) {
 	var normalized = {};
 	target = target || {};
 	for (var k in defaults) {
-		if (typeof defaults[k] === "object") {
+		if (typeof defaults[k] === "object" && !(defaults[k] instanceof Array)) {
 			normalized[k] = this.normalizeDefaults(target[k] || {}, defaults[k]);
 		} else {
 			normalized[k] = target[k] || defaults[k];
@@ -57,6 +86,10 @@ utils.gui.applyElementPropertys = function applyElementPropertys (element, prope
 
 utils.gui.createButton = function createButton (elementPropertys, clickcallback) {
 	var button = this.createElement("div", elementPropertys);
-	button.addEventListener("click", clickcallback);
+	button.addEventListener("click", function (event) {
+		if (!event.target.classList.contains("disabledbutton")) {
+			clickcallback();
+		}
+	});
 	return button;
 };
