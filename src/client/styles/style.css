@@ -20,3 +20,35 @@ html, body {
 .button {
 	cursor:pointer;
 }
+
+.mainmenu {
+	margin:auto;
+	margin-top:5%;
+	width:30%;
+	min-width:300px;
+}
+
+.mainmenubutton {
+	margin:10px;
+	padding:15px;
+	background:rgb(138, 117, 35);
+	color:white;
+	border-bottom:3px solid rgb(197, 166, 41);
+}
+
+.mainmenubutton:hover {
+	background:rgb(170, 144, 44);
+	border-bottom:none;
+	border-top:3px solid rgb(141, 120, 33);
+}
+
+.disabledbutton {
+	cursor:auto;
+	background:gray;
+	border:none;
+}
+
+.disabledbutton:hover {
+	background:gray;
+	border:none;
+}
