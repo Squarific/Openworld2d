@@ -1,9 +1,29 @@
-function OpenWorld2dRenderer (container) {
+function OpenWorld2dRenderer (container, settings) {
+	this.settings = utils.normalizeDefaults(settings, this.defaultSettings);
 	this.container = container;
 	this.initContainer(this.container);
 	window.addEventListener("resize", this.resizeCanvas.bind(this));
 	this.resizeCanvas();
 }
+
+OpenWorld2dRenderer.prototype.defaultSettings = {
+	mapGradient: [{
+		min: -0.98,
+		max: -0.055,
+		start: [65, 75, 153],
+		end: [91, 184, 228]
+	}, {
+		min: -0.04,
+		max: -0.01,
+		start: [238, 238, 63],
+		end: [241, 241, 63]
+	}, {
+		min: 0.012,
+		max: 1.02,
+		start: [137, 235, 61],
+		end: [34, 167, 28]
+	}]
+};
 
 OpenWorld2dRenderer.prototype.initContainer = function initContainer (container) {
 	utils.removeChildren(container);
@@ -22,10 +42,10 @@ OpenWorld2dRenderer.prototype.renderMap = function renderMap (heightMap, camera)
 	for (var x = 0; x < this.canvas.width; x++) {
 		for (var y = 0; y < this.canvas.height; y++) {
 			var pixel = x * 4 + y * this.canvas.width * 4;
-			var height = heightMap.getHeight((leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom) + 1;
-			imageData.data[pixel    ] = height * 127;
-			imageData.data[pixel + 1] = height * 127;
-			imageData.data[pixel + 2] = height * 127;
+			var color = utils.colorFromGradient(this.settings.mapGradient, heightMap.getHeight((leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom));
+			imageData.data[pixel    ] = color[0];
+			imageData.data[pixel + 1] = color[1];
+			imageData.data[pixel + 2] = color[2];
 			imageData.data[pixel + 3] = 255;
 		}
 	}
