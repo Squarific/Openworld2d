@@ -1,25 +1,23 @@
 function OpenWorld2dClient (container, settings) {
 	this.settings = utils.normalizeDefaults(settings, this.defaultSettings);
 	this.container = container;
+	this.camera = {
+		centerX: 0,
+		centerY: 0,
+		zoom: 1
+	};
+	this.data = {
+		lastMovePosition: [0, 0],
+		lastMapPositionUpdate: Date.now(),
+		moveMapX: 0,
+		moveMapY: 0
+	};
 	this.openView("mainStartMenu");
 }
-
-OpenWorld2dClient.prototype.data = {
-	lastMovePosition: [0, 0],
-	lastMapPositionUpdate: Date.now(),
-	moveMapX: 0,
-	moveMapY: 0
-};
 
 OpenWorld2dClient.prototype.defaultSettings = {
 	renderer: {},
 	mapScrollSpeed: 0.1
-};
-
-OpenWorld2dClient.prototype.camera = {
-	centerX: 0,
-	centerY: 0,
-	zoom: 1
 };
 
 OpenWorld2dClient.prototype.updateCameraPosition = function () {
@@ -39,9 +37,27 @@ OpenWorld2dClient.prototype.gameLoop = function gameLoop () {
 	}
 };
 
+OpenWorld2dClient.prototype.createBackground = function createBackGround (container) {
+	var ow2 = new OpenWorld2d();
+	var ow2r = new OpenWorld2dRenderer(container, this.settings.renderer);
+	ow2r.draw(ow2, this.camera);
+	var redraw = function redraw () {
+		if (container.parentNode) {
+			ow2r.draw(ow2, this.camera);
+			requestAnimationFrame(redraw.bind(this));
+		}
+	}.bind(this);
+	requestAnimationFrame(redraw);
+	return container;
+};
+
 OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame () {
 	if (!this.keepLooping) {
-		this.openWorld2d = new OpenWorld2d;
+		this.openWorld2d = new OpenWorld2d({
+			map: {
+				seed: Math.random()
+			}
+		});
 		this.openWorld2dRenderer = new OpenWorld2dRenderer(this.container, this.settings.renderer);
 		this.openWorld2dRenderer.mapCanvas.addEventListener("mousedown", this.handleMouseAndTouchDown.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("touchstart", this.handleMouseAndTouchDown.bind(this));
@@ -92,6 +108,10 @@ OpenWorld2dClient.prototype.openView = function openView (viewName) {
 
 OpenWorld2dClient.prototype.views = {
 	mainStartMenu: function (openworld2dclient) {
+		if (this.keepLooping) {
+			return;
+		}
+		
 		utils.removeChildren(openworld2dclient.container);
 		
 		var newSinglePlayerButton = utils.gui.createButton({
@@ -126,14 +146,22 @@ OpenWorld2dClient.prototype.views = {
 			className: "mainmenu"
 		});
 		
+		var background = utils.gui.createElement("div", {
+			className: "mainmenubackground"
+		});
+		
 		mainMenuContainer.appendChild(newSinglePlayerButton);
 		mainMenuContainer.appendChild(loadSinglePlayerButton);
 		mainMenuContainer.appendChild(multiplayerButton);
 		mainMenuContainer.appendChild(creditsButton);
 		
+		openworld2dclient.container.appendChild(background);
 		openworld2dclient.container.appendChild(mainMenuContainer);
 		
 		openworld2dclient.container.style.background = "rgb(198, 204, 151)";
+		
+		// Things that make the dom recalculate should be done below
+		openworld2dclient.createBackground(background);
 	}
 };
 

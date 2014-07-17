@@ -2,36 +2,49 @@ function OpenWorld2dRenderer (container, settings) {
 	this.settings = utils.normalizeDefaults(settings, this.defaultSettings);
 	this.container = container;
 	this.initContainer(this.container);
-	window.addEventListener("resize", this.resizeMapCanvas.bind(this));
-	this.resizeMapCanvas();
+	this.checkResize();
+	this.data = {
+		lastMapRender: {
+			position: [0, 0],
+			size: [0, 0],
+			zoom: 0
+		}
+	};
 }
 
 OpenWorld2dRenderer.prototype.defaultSettings = {
 	mapGradient: [{
 		min: -0.98,
-		max: -0.055,
+		max: -0.005,
 		start: [65, 75, 153],
-		end: [91, 184, 228]
+		end: [91, 184, 228] //Water
 	}, {
-		min: -0.04,
-		max: -0.01,
+		min: 0,
+		max: 0.01,
 		start: [238, 238, 63],
-		end: [241, 241, 63]
+		end: [241, 241, 63] //Sand
 	}, {
-		min: 0.012,
-		max: 1.02,
+		min: 0.014,
+		max: 0.45,
 		start: [137, 235, 61],
-		end: [34, 167, 28]
+		end: [34, 167, 28] //Grass
+	}, {
+		min: 0.52,
+		max: 0.58,
+		start: [172, 138, 50],
+		end: [139, 114, 47] //Dirt
+	}, {
+		min: 0.62,
+		max: 0.75,
+		start: [129, 129, 129],
+		end: [192, 192, 192] //Stone
+	}, {
+		min: 0.79,
+		max: 1.02,
+		start: [225, 225, 225],
+		end: [255, 255, 255] //Snow
 	}],
 	shade: true
-};
-
-OpenWorld2dRenderer.prototype.data = {
-	lastMapRender: {
-		position: [0, 0],
-		size: [0, 0],
-		zoom: 0
-	}
 };
 
 OpenWorld2dRenderer.prototype.initContainer = function initContainer (container) {
@@ -41,6 +54,7 @@ OpenWorld2dRenderer.prototype.initContainer = function initContainer (container)
 };
 
 OpenWorld2dRenderer.prototype.draw = function draw (openWorld2d, camera) {
+	this.checkResize();
 	this.renderMap(openWorld2d.heightMap, camera);
 };
 
@@ -112,8 +126,8 @@ OpenWorld2dRenderer.prototype.renderPartialMap = function renderPartialMap (heig
 	var width = end[0] - start[0],
 		height = end[1] - start[1];
 	var imageData = ctx.getImageData(start[0], start[1], width, height),
-	    leftTopX = camera.centerX - this.mapCanvas.width / 2 / camera.zoom + start[0],
-	    leftTopY = camera.centerY - this.mapCanvas.height / 2 / camera.zoom + start[1];
+	    leftTopX = camera.centerX - ctx.canvas.width / 2 / camera.zoom + start[0],
+	    leftTopY = camera.centerY - ctx.canvas.height / 2 / camera.zoom + start[1];
 	for (var x = 0; x < width; x++) {
 		for (var y = 0; y < height; y++) {
 			var pixel = x * 4 + y * width * 4;
@@ -145,7 +159,9 @@ OpenWorld2dRenderer.prototype.shadeMapColor = function shadeMapColor (heightMap,
 	return color;
 };
 
-OpenWorld2dRenderer.prototype.resizeMapCanvas = function resizeMapCanvas () {
-	this.mapCanvas.width = this.container.offsetWidth;
-	this.mapCanvas.height = this.container.offsetHeight;
+OpenWorld2dRenderer.prototype.checkResize = function checkResize () {
+	if (this.mapCanvas.width !== this.container.offsetWidth || this.mapCanvas.height !== this.container.offsetHeight) {
+		this.mapCanvas.width = this.container.offsetWidth;
+		this.mapCanvas.height = this.container.offsetHeight;
+	}
 };
