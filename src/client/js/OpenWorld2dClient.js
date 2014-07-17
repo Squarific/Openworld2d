@@ -25,12 +25,12 @@ OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame (
 	if (!this.keepLooping) {
 		this.openWorld2d = new OpenWorld2d;
 		this.openWorld2dRenderer = new OpenWorld2dRenderer(this.container);
-		this.openWorld2dRenderer.canvas.addEventListener("mousedown", this.handleMouseAndTouchDown.bind(this));
-		this.openWorld2dRenderer.canvas.addEventListener("touchstart", this.handleMouseAndTouchDown.bind(this));
-		this.openWorld2dRenderer.canvas.addEventListener("mousemove", this.handleMouseAndTouchMove.bind(this));
-		this.openWorld2dRenderer.canvas.addEventListener("touchmove", this.handleMouseAndTouchMove.bind(this));
-		this.openWorld2dRenderer.canvas.addEventListener("mouseup", this.handleMouseAndTouchUp.bind(this));
-		this.openWorld2dRenderer.canvas.addEventListener("touchend", this.handleMouseAndTouchUp.bind(this));
+		this.openWorld2dRenderer.mapCanvas.addEventListener("mousedown", this.handleMouseAndTouchDown.bind(this));
+		this.openWorld2dRenderer.mapCanvas.addEventListener("touchstart", this.handleMouseAndTouchDown.bind(this));
+		this.openWorld2dRenderer.mapCanvas.addEventListener("mousemove", this.handleMouseAndTouchMove.bind(this));
+		this.openWorld2dRenderer.mapCanvas.addEventListener("touchmove", this.handleMouseAndTouchMove.bind(this));
+		this.openWorld2dRenderer.mapCanvas.addEventListener("mouseup", this.handleMouseAndTouchUp.bind(this));
+		this.openWorld2dRenderer.mapCanvas.addEventListener("touchend", this.handleMouseAndTouchUp.bind(this));
 		this.startLoop();
 	}
 };
@@ -39,7 +39,7 @@ OpenWorld2dClient.prototype.handleMouseAndTouchDown = function handleMouseAndTou
 	this.data.lastMovePosition[0] = event.screenX || event.changedTouches[0].screenX;
 	this.data.lastMovePosition[1] = event.screenY || event.changedTouches[0].screenY;
 	this.moving = true;
-	this.openWorld2dRenderer.canvas.style.cursor = "move";
+	this.openWorld2dRenderer.mapCanvas.style.cursor = "move";
 };
 
 OpenWorld2dClient.prototype.handleMouseAndTouchMove = function handleMouseAndTouchMove (event) {
@@ -53,7 +53,7 @@ OpenWorld2dClient.prototype.handleMouseAndTouchMove = function handleMouseAndTou
 
 OpenWorld2dClient.prototype.handleMouseAndTouchUp = function handleMouseAndTouchUp (event) {
 	this.moving = false;
-	this.openWorld2dRenderer.canvas.style.cursor = "";
+	this.openWorld2dRenderer.mapCanvas.style.cursor = "";
 };
 
 OpenWorld2dClient.prototype.startLoop = function startLoop () {
