@@ -15,8 +15,8 @@ HeightMap.prototype.getHeight = function getHeight (x, y) {
 
 HeightMap.prototype.defaultSettings = {
 	seed: Math.random(),
-	zoomX: 50,
-	zoomY: 50,
+	zoomX: 25,
+	zoomY: 25,
 	shiftHeight: function shiftHeight (height) {
 		return height * height * height + 0.02;
 	},
