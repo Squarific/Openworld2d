@@ -23,8 +23,8 @@ OpenWorld2dClient.prototype.defaultSettings = {
 OpenWorld2dClient.prototype.updateCameraPosition = function () {
 	var now = Date.now(),
 	    deltaTime = now - this.data.lastMapPositionUpdate;
-	this.camera.centerX += this.data.moveMapX * this.settings.mapScrollSpeed * deltaTime;
-	this.camera.centerY += this.data.moveMapY * this.settings.mapScrollSpeed * deltaTime;
+	this.camera.centerX += this.data.moveMapX * this.settings.mapScrollSpeed * deltaTime / this.camera.zoom;
+	this.camera.centerY += this.data.moveMapY * this.settings.mapScrollSpeed * deltaTime / this.camera.zoom;
 	this.data.lastMapPositionUpdate = now;
 };
 
@@ -83,8 +83,8 @@ OpenWorld2dClient.prototype.handleMouseAndTouchDown = function handleMouseAndTou
 
 OpenWorld2dClient.prototype.handleMouseAndTouchMove = function handleMouseAndTouchMove (event) {
 	if (this.moving) {
-		this.camera.centerX += this.data.lastMovePosition[0] - (event.screenX || event.changedTouches[0].screenX);
-		this.camera.centerY += this.data.lastMovePosition[1] - (event.screenY || event.changedTouches[1].screenY);
+		this.camera.centerX += (this.data.lastMovePosition[0] - (event.screenX || event.changedTouches[0].screenX)) / this.camera.zoom;
+		this.camera.centerY += (this.data.lastMovePosition[1] - (event.screenY || event.changedTouches[1].screenY)) / this.camera.zoom;
 		this.data.lastMovePosition[0] = event.screenX || event.changedTouches[0].screenX;
 		this.data.lastMovePosition[1] = event.screenY || event.changedTouches[0].screenY;
 	}

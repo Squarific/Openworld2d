@@ -94,8 +94,8 @@ OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
 		this.data.lastMapRender.position[0] = camera.centerX;
 		this.data.lastMapRender.position[1] = camera.centerY;
 	} else {
-		var shiftX = Math.round((this.data.lastMapRender.position[0] - camera.centerX) / camera.zoom),
-			shiftY = Math.round((this.data.lastMapRender.position[1] - camera.centerY) / camera.zoom);
+		var shiftX = Math.round((this.data.lastMapRender.position[0] - camera.centerX) * camera.zoom),
+			shiftY = Math.round((this.data.lastMapRender.position[1] - camera.centerY) * camera.zoom);
 		this.shiftMap(shiftX, shiftY, this.mapCtx);
 		if (shiftX > 0) {
 			this.renderPartialMap(heightMap, [0, 0], [shiftX, this.mapCanvas.height], camera, this.mapCtx);
@@ -109,8 +109,8 @@ OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
 		if (shiftY < 0) {
 			this.renderPartialMap(heightMap, [0, this.mapCanvas.height + shiftY], [this.mapCanvas.width, this.mapCanvas.height], camera, this.mapCtx);
 		}
-		this.data.lastMapRender.position[0] = this.data.lastMapRender.position[0] - shiftX * camera.zoom;
-		this.data.lastMapRender.position[1] = this.data.lastMapRender.position[1] - shiftY * camera.zoom;
+		this.data.lastMapRender.position[0] = this.data.lastMapRender.position[0] - shiftX / camera.zoom;
+		this.data.lastMapRender.position[1] = this.data.lastMapRender.position[1] - shiftY / camera.zoom;
 	}
 	this.data.lastMapRender.size[0] = this.mapCanvas.width;
 	this.data.lastMapRender.size[1] = this.mapCanvas.height;
