@@ -1,4 +1,4 @@
-function OpenWorld2d (container, settings) {
+function OpenWorld2d (settings) {
 	this.settings = utils.normalizeDefaults(settings, this.defaultSettings);
 	this.heightMap = new HeightMap(this.settings.map);
 }
