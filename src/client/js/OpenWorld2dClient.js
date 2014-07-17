@@ -59,6 +59,7 @@ OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame (
 			}
 		});
 		this.openWorld2dRenderer = new OpenWorld2dRenderer(this.container, this.settings.renderer);
+		this.openWorld2dRenderer.speedTest(this.openWorld2d.heightMap);
 		this.openWorld2dRenderer.mapCanvas.addEventListener("mousedown", this.handleMouseAndTouchDown.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("touchstart", this.handleMouseAndTouchDown.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("mousemove", this.handleMouseAndTouchMove.bind(this));

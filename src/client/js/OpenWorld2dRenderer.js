@@ -47,6 +47,18 @@ OpenWorld2dRenderer.prototype.defaultSettings = {
 	shade: true
 };
 
+OpenWorld2dRenderer.prototype.speedTest = function speedTest (heightMap) {
+	var timePerPixel = Date.now(),
+		pixels = this.mapCanvas.width * this.mapCanvas.height;
+	for (var k = 0; k < 1000; k++) {
+		heightMap.getHeight(k, k);
+	}
+	timePerPixel = (Date.now() - timePerPixel) / 200; //We did 1000 and there are 5 per pixel
+	if (timePerPixel * pixels > 10000) {
+		this.settings.shade = false;
+	}
+};
+
 OpenWorld2dRenderer.prototype.initContainer = function initContainer (container) {
 	utils.removeChildren(container);
 	this.mapCanvas = container.appendChild(document.createElement("canvas"));
