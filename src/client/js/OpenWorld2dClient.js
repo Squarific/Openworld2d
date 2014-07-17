@@ -51,6 +51,7 @@ OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame (
 		this.openWorld2dRenderer.mapCanvas.addEventListener("touchend", this.handleMouseAndTouchUp.bind(this));
 		document.addEventListener("keydown", this.handleKeydown.bind(this));
 		document.addEventListener("keyup", this.handleKeyup.bind(this));
+		document.addEventListener("keypress", this.handleKeypress.bind(this));
 		this.startLoop();
 	}
 };
@@ -136,8 +137,20 @@ OpenWorld2dClient.prototype.views = {
 	}
 };
 
+OpenWorld2dClient.prototype.handleKeypress = function handleKeypress (event) {
+	console.log("Keypress: ", event.keyCode);
+	switch (event.keyCode) {
+		case 45: //Minus
+			this.camera.zoom /= 2;
+		break;
+		case 43: //Plus
+			this.camera.zoom *= 2;
+		break;
+	}
+};
+
 OpenWorld2dClient.prototype.handleKeydown = function handleKeydown (event) {
-	console.log(event.keyCode);
+	console.log("Keydown: ", event.keyCode);
 	switch (event.keyCode) {
 		case 37: //Left
 			this.data.moveMapX = -1;
@@ -170,3 +183,4 @@ OpenWorld2dClient.prototype.handleKeyup = function handleKeyup (event) {
 		break;
 	}
 };
+

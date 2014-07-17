@@ -22,20 +22,22 @@ OpenWorld2dRenderer.prototype.defaultSettings = {
 		max: 1.02,
 		start: [137, 235, 61],
 		end: [34, 167, 28]
-	}]
+	}],
+	shade: true
 };
 
 OpenWorld2dRenderer.prototype.data = {
 	lastMapRender: {
 		position: [0, 0],
-		size: [0, 0]
+		size: [0, 0],
+		zoom: 0
 	}
 };
 
 OpenWorld2dRenderer.prototype.initContainer = function initContainer (container) {
 	utils.removeChildren(container);
 	this.mapCanvas = container.appendChild(document.createElement("canvas"));
-	this.ctx = this.mapCanvas.getContext("2d");
+	this.mapCtx = this.mapCanvas.getContext("2d");
 };
 
 OpenWorld2dRenderer.prototype.draw = function draw (openWorld2d, camera) {
@@ -58,40 +60,45 @@ OpenWorld2dRenderer.prototype.mapMovedTooFar = function mapMovedTooFar (lastPosi
 };
 
 OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
-	if (this.mapWidthChanged(this.data.lastMapRender.size) || this.mapMovedTooFar(this.data.lastMapRender.position, camera)) {
-		this.renderFullMap(heightMap, camera);
+	if (this.mapWidthChanged(this.data.lastMapRender.size)
+	|| this.mapMovedTooFar(this.data.lastMapRender.position, camera)
+	|| this.data.lastMapRender.zoom !== camera.zoom
+	|| this.data.lastMapRender.shade !== this.settings.shade) {
+		this.renderFullMap(heightMap, camera, this.mapCtx);
 		this.data.lastMapRender.position[0] = camera.centerX;
 		this.data.lastMapRender.position[1] = camera.centerY;
 	} else {
 		var shiftX = Math.round(this.data.lastMapRender.position[0] - camera.centerX),
 			shiftY = Math.round(this.data.lastMapRender.position[1] - camera.centerY);
-		this.shiftMap(shiftX, shiftY);
+		this.shiftMap(shiftX, shiftY, this.mapCtx);
 		if (shiftX > 0) {
-			this.renderPartialMap(heightMap, [0, 0], [shiftX, this.mapCanvas.height], camera);
+			this.renderPartialMap(heightMap, [0, 0], [shiftX, this.mapCanvas.height], camera, this.mapCtx);
 		}
 		if (shiftX < 0) {
-			this.renderPartialMap(heightMap, [this.mapCanvas.width + shiftX, 0], [this.mapCanvas.width, this.mapCanvas.height], camera);
+			this.renderPartialMap(heightMap, [this.mapCanvas.width + shiftX, 0], [this.mapCanvas.width, this.mapCanvas.height], camera, this.mapCtx);
 		}
 		if (shiftY > 0) {
-			this.renderPartialMap(heightMap, [0, 0], [this.mapCanvas.width, shiftY], camera);
+			this.renderPartialMap(heightMap, [0, 0], [this.mapCanvas.width, shiftY], camera, this.mapCtx);
 		}
 		if (shiftY < 0) {
-			this.renderPartialMap(heightMap, [0, this.mapCanvas.height + shiftY], [this.mapCanvas.width, this.mapCanvas.height], camera);
+			this.renderPartialMap(heightMap, [0, this.mapCanvas.height + shiftY], [this.mapCanvas.width, this.mapCanvas.height], camera, this.mapCtx);
 		}
 		this.data.lastMapRender.position[0] = this.data.lastMapRender.position[0] - shiftX;
 		this.data.lastMapRender.position[1] = this.data.lastMapRender.position[1] - shiftY;
 	}
 	this.data.lastMapRender.size[0] = this.mapCanvas.width;
 	this.data.lastMapRender.size[1] = this.mapCanvas.height;
+	this.data.lastMapRender.zoom = camera.zoom;
+	this.data.lastMapRender.shade = this.settings.shade;
 };
 
-OpenWorld2dRenderer.prototype.shiftMap = function shiftMap (shiftX, shiftY) {
+OpenWorld2dRenderer.prototype.shiftMap = function shiftMap (shiftX, shiftY, ctx) {
 	if (shiftX == 0 && shiftY == 0) return;
-	var imageData = this.ctx.getImageData(0, 0, this.mapCanvas.width, this.mapCanvas.height);
-	this.ctx.putImageData(imageData, shiftX, shiftY);
+	var imageData = ctx.getImageData(0, 0, this.mapCanvas.width, this.mapCanvas.height);
+	ctx.putImageData(imageData, shiftX, shiftY);
 };
 
-OpenWorld2dRenderer.prototype.renderPartialMap = function renderPartialMap (heightMap, start, end, camera) {
+OpenWorld2dRenderer.prototype.renderPartialMap = function renderPartialMap (heightMap, start, end, camera, ctx) {
 	if (start[0] > end[0]) {
 		var temp = end[0];
 		end[0] = start[0];
@@ -104,37 +111,38 @@ OpenWorld2dRenderer.prototype.renderPartialMap = function renderPartialMap (heig
 	}
 	var width = end[0] - start[0],
 		height = end[1] - start[1];
-	var imageData = this.ctx.getImageData(start[0], start[1], width, height),
-	    leftTopX = camera.centerX - this.mapCanvas.width / 2 + start[0],
-	    leftTopY = camera.centerY - this.mapCanvas.height / 2 + start[1];
+	var imageData = ctx.getImageData(start[0], start[1], width, height),
+	    leftTopX = camera.centerX - this.mapCanvas.width / 2 / camera.zoom + start[0],
+	    leftTopY = camera.centerY - this.mapCanvas.height / 2 / camera.zoom + start[1];
 	for (var x = 0; x < width; x++) {
 		for (var y = 0; y < height; y++) {
 			var pixel = x * 4 + y * width * 4;
-			var color = utils.colorFromGradient(this.settings.mapGradient, heightMap.getHeight((leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom));
+			var pixelHeight = heightMap.getHeight((leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom);
+			var color = utils.colorFromGradient(this.settings.mapGradient, pixelHeight);
+			if (this.settings.shade) {
+				color = this.shadeMapColor(heightMap, color, (leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom);
+			}
 			imageData.data[pixel    ] = color[0];
 			imageData.data[pixel + 1] = color[1];
 			imageData.data[pixel + 2] = color[2];
 			imageData.data[pixel + 3] = 255;
 		}
 	}
-	this.ctx.putImageData(imageData, start[0], start[1]);
+	ctx.putImageData(imageData, start[0], start[1]);
 };
 
-OpenWorld2dRenderer.prototype.renderFullMap = function renderMap (heightMap, camera) {
-	var imageData = this.ctx.getImageData(0, 0, this.mapCanvas.width, this.mapCanvas.height),
-	    leftTopX = camera.centerX - this.mapCanvas.width / 2,
-	    leftTopY = camera.centerY - this.mapCanvas.height / 2;
-	for (var x = 0; x < this.mapCanvas.width; x++) {
-		for (var y = 0; y < this.mapCanvas.height; y++) {
-			var pixel = x * 4 + y * this.mapCanvas.width * 4;
-			var color = utils.colorFromGradient(this.settings.mapGradient, heightMap.getHeight((leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom));
-			imageData.data[pixel    ] = color[0];
-			imageData.data[pixel + 1] = color[1];
-			imageData.data[pixel + 2] = color[2];
-			imageData.data[pixel + 3] = 255;
-		}
+OpenWorld2dRenderer.prototype.renderFullMap = function renderMap (heightMap, camera, ctx) {
+	this.renderPartialMap(heightMap, [0, 0], [ctx.canvas.width, ctx.canvas.height], camera, ctx);
+};
+
+OpenWorld2dRenderer.prototype.shadeMapColor = function shadeMapColor (heightMap, color, x, y) {
+	var dx = heightMap.getHeight(x + 1, y) - heightMap.getHeight(x - 1, y);
+	var dy = heightMap.getHeight(x, y + 1) - heightMap.getHeight(x, y - 1);
+	var f = 1 + (dx + dy) * 5;
+	for (var c = 0; c < color.length; c++) {
+		color[c] = f * color[c];
 	}
-	this.ctx.putImageData(imageData, 0, 0);
+	return color;
 };
 
 OpenWorld2dRenderer.prototype.resizeMapCanvas = function resizeMapCanvas () {
