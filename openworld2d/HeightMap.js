@@ -17,7 +17,7 @@ HeightMap.prototype.defaultSettings = {
 	seed: Math.random(),
 	zoomX: 500,
 	zoomY: 500,
-	shiftHeight: function (height) {
+	shiftHeight: function shiftHeight (height) {
 		return height * height * height + 0.02;
 	},
 	noiseType: "perlin"
