@@ -40,6 +40,7 @@ OpenWorld2dClient.prototype.gameLoop = function gameLoop () {
 OpenWorld2dClient.prototype.createBackground = function createBackGround (container) {
 	var ow2 = new OpenWorld2d();
 	var ow2r = new OpenWorld2dRenderer(container, this.settings.renderer);
+	ow2r.speedTest(ow2.heightMap);
 	ow2r.draw(ow2, this.camera);
 	var redraw = function redraw () {
 		if (container.parentNode) {
