@@ -43,9 +43,21 @@ utils.interPolateMulti = function interPolateMulti (starts, ends, value) {
 	return interpolated;
 };
 
+utils.cloneObject = function (obj) {
+	var clone = {};
+	for (var k in obj) {
+		if (typeof obj[k] === "object" && !(obj[k] instanceof Array)) {
+			clone[k] = this.cloneObject(obj[k]);
+		} else {
+			clone[k] = obj[k]
+		}
+	}
+	return clone;
+};
+
 utils.normalizeDefaults = function normalizeDefaults (target, defaults) {
-	var normalized = {};
 	target = target || {};
+	var normalized = utils.cloneObject(target);
 	for (var k in defaults) {
 		if (typeof defaults[k] === "object" && !(defaults[k] instanceof Array)) {
 			normalized[k] = this.normalizeDefaults(target[k] || {}, defaults[k]);
