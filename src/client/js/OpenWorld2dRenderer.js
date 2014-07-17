@@ -54,7 +54,7 @@ OpenWorld2dRenderer.prototype.speedTest = function speedTest (heightMap) {
 		heightMap.getHeight(k, k);
 	}
 	timePerPixel = (Date.now() - timePerPixel) / 200; //We did 1000 and there are 5 per pixel
-	if (timePerPixel * pixels > 10000) {
+	if (timePerPixel * pixels > 15000) {
 		this.settings.shade = false;
 	}
 };
@@ -94,8 +94,8 @@ OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
 		this.data.lastMapRender.position[0] = camera.centerX;
 		this.data.lastMapRender.position[1] = camera.centerY;
 	} else {
-		var shiftX = Math.round(this.data.lastMapRender.position[0] - camera.centerX),
-			shiftY = Math.round(this.data.lastMapRender.position[1] - camera.centerY);
+		var shiftX = Math.round((this.data.lastMapRender.position[0] - camera.centerX) / camera.zoom),
+			shiftY = Math.round((this.data.lastMapRender.position[1] - camera.centerY) / camera.zoom);
 		this.shiftMap(shiftX, shiftY, this.mapCtx);
 		if (shiftX > 0) {
 			this.renderPartialMap(heightMap, [0, 0], [shiftX, this.mapCanvas.height], camera, this.mapCtx);
@@ -109,8 +109,8 @@ OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
 		if (shiftY < 0) {
 			this.renderPartialMap(heightMap, [0, this.mapCanvas.height + shiftY], [this.mapCanvas.width, this.mapCanvas.height], camera, this.mapCtx);
 		}
-		this.data.lastMapRender.position[0] = this.data.lastMapRender.position[0] - shiftX;
-		this.data.lastMapRender.position[1] = this.data.lastMapRender.position[1] - shiftY;
+		this.data.lastMapRender.position[0] = this.data.lastMapRender.position[0] - shiftX * camera.zoom;
+		this.data.lastMapRender.position[1] = this.data.lastMapRender.position[1] - shiftY * camera.zoom;
 	}
 	this.data.lastMapRender.size[0] = this.mapCanvas.width;
 	this.data.lastMapRender.size[1] = this.mapCanvas.height;
@@ -138,15 +138,15 @@ OpenWorld2dRenderer.prototype.renderPartialMap = function renderPartialMap (heig
 	var width = end[0] - start[0],
 		height = end[1] - start[1];
 	var imageData = ctx.getImageData(start[0], start[1], width, height),
-	    leftTopX = camera.centerX - ctx.canvas.width / 2 / camera.zoom + start[0],
-	    leftTopY = camera.centerY - ctx.canvas.height / 2 / camera.zoom + start[1];
+	    leftTopX = camera.centerX - ctx.canvas.width / 2 / camera.zoom + start[0] / camera.zoom,
+	    leftTopY = camera.centerY - ctx.canvas.height / 2 / camera.zoom + start[1] / camera.zoom;
 	for (var x = 0; x < width; x++) {
 		for (var y = 0; y < height; y++) {
 			var pixel = x * 4 + y * width * 4;
-			var pixelHeight = heightMap.getHeight((leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom);
+			var pixelHeight = heightMap.getHeight(leftTopX + (x / camera.zoom), leftTopY + (y / camera.zoom));
 			var color = utils.colorFromGradient(this.settings.mapGradient, pixelHeight);
 			if (this.settings.shade) {
-				color = this.shadeMapColor(heightMap, color, (leftTopX + x) / camera.zoom, (leftTopY + y) / camera.zoom);
+				color = this.shadeMapColor(heightMap, color, leftTopX + (x / camera.zoom), leftTopY + (y / camera.zoom));
 			}
 			imageData.data[pixel    ] = color[0];
 			imageData.data[pixel + 1] = color[1];
