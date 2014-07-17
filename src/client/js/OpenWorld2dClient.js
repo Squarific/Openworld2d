@@ -1,10 +1,19 @@
-function OpenWorld2dClient (container) {
+function OpenWorld2dClient (container, settings) {
+	this.settings = utils.normalizeDefaults(settings, this.defaultSettings);
 	this.container = container;
 	this.openView("mainStartMenu");
 }
 
 OpenWorld2dClient.prototype.data = {
-	lastMovePosition: [0, 0]
+	lastMovePosition: [0, 0],
+	lastMapPositionUpdate: Date.now(),
+	moveMapX: 0,
+	moveMapY: 0
+};
+
+OpenWorld2dClient.prototype.defaultSettings = {
+	renderer: {},
+	mapScrollSpeed: 0.1
 };
 
 OpenWorld2dClient.prototype.camera = {
@@ -13,8 +22,17 @@ OpenWorld2dClient.prototype.camera = {
 	zoom: 1
 };
 
+OpenWorld2dClient.prototype.updateCameraPosition = function () {
+	var now = Date.now(),
+	    deltaTime = now - this.data.lastMapPositionUpdate;
+	this.camera.centerX += this.data.moveMapX * this.settings.mapScrollSpeed * deltaTime;
+	this.camera.centerY += this.data.moveMapY * this.settings.mapScrollSpeed * deltaTime;
+	this.data.lastMapPositionUpdate = now;
+};
+
 OpenWorld2dClient.prototype.gameLoop = function gameLoop () {
 	this.openWorld2d.updateWorld();
+	this.updateCameraPosition();
 	this.openWorld2dRenderer.draw(this.openWorld2d, this.camera);
 	if (this.keepLooping) {
 		requestAnimationFrame(this.gameLoop.bind(this));
@@ -24,13 +42,15 @@ OpenWorld2dClient.prototype.gameLoop = function gameLoop () {
 OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame () {
 	if (!this.keepLooping) {
 		this.openWorld2d = new OpenWorld2d;
-		this.openWorld2dRenderer = new OpenWorld2dRenderer(this.container);
+		this.openWorld2dRenderer = new OpenWorld2dRenderer(this.container, this.settings.renderer);
 		this.openWorld2dRenderer.mapCanvas.addEventListener("mousedown", this.handleMouseAndTouchDown.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("touchstart", this.handleMouseAndTouchDown.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("mousemove", this.handleMouseAndTouchMove.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("touchmove", this.handleMouseAndTouchMove.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("mouseup", this.handleMouseAndTouchUp.bind(this));
 		this.openWorld2dRenderer.mapCanvas.addEventListener("touchend", this.handleMouseAndTouchUp.bind(this));
+		document.addEventListener("keydown", this.handleKeydown.bind(this));
+		document.addEventListener("keyup", this.handleKeyup.bind(this));
 		this.startLoop();
 	}
 };
@@ -113,5 +133,40 @@ OpenWorld2dClient.prototype.views = {
 		openworld2dclient.container.appendChild(mainMenuContainer);
 		
 		openworld2dclient.container.style.background = "rgb(198, 204, 151)";
+	}
+};
+
+OpenWorld2dClient.prototype.handleKeydown = function handleKeydown (event) {
+	console.log(event.keyCode);
+	switch (event.keyCode) {
+		case 37: //Left
+			this.data.moveMapX = -1;
+		break;
+		case 38: //Up
+			this.data.moveMapY = -1;
+		break;
+		case 39: //Right
+			this.data.moveMapX = 1;
+		break;
+		case 40: //Down
+			this.data.moveMapY = 1;
+		break;
+	}
+};
+
+OpenWorld2dClient.prototype.handleKeyup = function handleKeyup (event) {
+	switch (event.keyCode) {
+		case 37: //Left
+			this.data.moveMapX = 0;
+		break;
+		case 38: //Up
+			this.data.moveMapY = 0;
+		break;
+		case 39: //Right
+			this.data.moveMapX = 0;
+		break;
+		case 40: //Down
+			this.data.moveMapY = 0;
+		break;
 	}
 };

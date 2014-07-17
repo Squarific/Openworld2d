@@ -22,16 +22,14 @@ OpenWorld2dRenderer.prototype.defaultSettings = {
 		max: 1.02,
 		start: [137, 235, 61],
 		end: [34, 167, 28]
-	}],
-	mapScrollSpeed: 0.001
+	}]
 };
 
 OpenWorld2dRenderer.prototype.data = {
 	lastMapRender: {
 		position: [0, 0],
 		size: [0, 0]
-	},
-	lastMapPositionUpdate: Date.now()
+	}
 };
 
 OpenWorld2dRenderer.prototype.initContainer = function initContainer (container) {
@@ -41,12 +39,7 @@ OpenWorld2dRenderer.prototype.initContainer = function initContainer (container)
 };
 
 OpenWorld2dRenderer.prototype.draw = function draw (openWorld2d, camera) {
-	this.updateMapPosition();
 	this.renderMap(openWorld2d.heightMap, camera);
-};
-
-OpenWorld2dRenderer.prototype.updateMapPosition = function () {
-	this.data.lastMapPositionUpdate = Date.now();
 };
 
 OpenWorld2dRenderer.prototype.mapWidthChanged = function widthChanged (size) {
@@ -67,9 +60,11 @@ OpenWorld2dRenderer.prototype.mapMovedTooFar = function mapMovedTooFar (lastPosi
 OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
 	if (this.mapWidthChanged(this.data.lastMapRender.size) || this.mapMovedTooFar(this.data.lastMapRender.position, camera)) {
 		this.renderFullMap(heightMap, camera);
+		this.data.lastMapRender.position[0] = camera.centerX;
+		this.data.lastMapRender.position[1] = camera.centerY;
 	} else {
-		var shiftX = this.data.lastMapRender.position[0] - camera.centerX,
-			shiftY = this.data.lastMapRender.position[1] - camera.centerY;
+		var shiftX = Math.round(this.data.lastMapRender.position[0] - camera.centerX),
+			shiftY = Math.round(this.data.lastMapRender.position[1] - camera.centerY);
 		this.shiftMap(shiftX, shiftY);
 		if (shiftX > 0) {
 			this.renderPartialMap(heightMap, [0, 0], [shiftX, this.mapCanvas.height], camera);
@@ -83,9 +78,9 @@ OpenWorld2dRenderer.prototype.renderMap = function (heightMap, camera) {
 		if (shiftY < 0) {
 			this.renderPartialMap(heightMap, [0, this.mapCanvas.height + shiftY], [this.mapCanvas.width, this.mapCanvas.height], camera);
 		}
+		this.data.lastMapRender.position[0] = this.data.lastMapRender.position[0] - shiftX;
+		this.data.lastMapRender.position[1] = this.data.lastMapRender.position[1] - shiftY;
 	}
-	this.data.lastMapRender.position[0] = camera.centerX;
-	this.data.lastMapRender.position[1] = camera.centerY;
 	this.data.lastMapRender.size[0] = this.mapCanvas.width;
 	this.data.lastMapRender.size[1] = this.mapCanvas.height;
 };
