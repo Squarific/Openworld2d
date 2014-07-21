@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS companys (
 	money BIGINT
 );
 
+CREATE TABLE IF NOT EXISTS generatedRegions (
+	x BIGINT,
+	y BIGINT
+);
+
 CREATE TABLE IF NOT EXISTS towns (
 	townid BIGINT AUTO_INCREMENT,
 	population BIGINT,
