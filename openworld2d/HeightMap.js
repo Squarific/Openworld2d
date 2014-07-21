@@ -10,13 +10,13 @@ function HeightMap (settings) {
 }
 
 HeightMap.prototype.getHeight = function getHeight (x, y) {
-	return this.settings.shiftHeight((this.noise(x / this.settings.zoomX, y / this.settings.zoomY) + this.noise(x / this.settings.zoomX / 40, y / this.settings.zoomY / 40) * 24) / 25);
+	return this.settings.shiftHeight((this.noise(x / this.settings.zoomX, y / this.settings.zoomY) + this.noise(x / this.settings.zoomX / 40, y / this.settings.zoomY / 40) * 24) / 25);	
 };
 
 HeightMap.prototype.defaultSettings = {
 	seed: Math.random(),
-	zoomX: 25,
-	zoomY: 25,
+	zoomX: 15,
+	zoomY: 15,
 	shiftHeight: function shiftHeight (height) {
 		return height * height * height + 0.02;
 	},
