@@ -145,8 +145,8 @@ OpenWorld2dRenderer.prototype.renderPartialMap = function renderPartialMap (heig
 			var pixel = x * 4 + y * width * 4;
 			var pixelHeight = heightMap.getHeight(leftTopX + (x / camera.zoom), leftTopY + (y / camera.zoom));
 			var color = utils.colorFromGradient(this.settings.mapGradient, pixelHeight);
-			if (this.settings.shade) {
-				color = this.shadeMapColor(heightMap, color, leftTopX + (x / camera.zoom), leftTopY + (y / camera.zoom));
+			if (this.settings.shade && pixelHeight > 0) {
+				color = this.shadeMapColor(pixelHeight, heightMap, color, leftTopX + (x / camera.zoom), leftTopY + (y / camera.zoom));
 			}
 			imageData.data[pixel    ] = color[0];
 			imageData.data[pixel + 1] = color[1];
@@ -161,10 +161,10 @@ OpenWorld2dRenderer.prototype.renderFullMap = function renderMap (heightMap, cam
 	this.renderPartialMap(heightMap, [0, 0], [ctx.canvas.width, ctx.canvas.height], camera, ctx);
 };
 
-OpenWorld2dRenderer.prototype.shadeMapColor = function shadeMapColor (heightMap, color, x, y) {
+OpenWorld2dRenderer.prototype.shadeMapColor = function shadeMapColor (height, heightMap, color, x, y) {
 	var dx = heightMap.getHeight(x + 1, y) - heightMap.getHeight(x - 1, y);
 	var dy = heightMap.getHeight(x, y + 1) - heightMap.getHeight(x, y - 1);
-	var f = 1 + (dx + dy) * 5;
+	var f = 1 + (dx + dy);
 	for (var c = 0; c < color.length; c++) {
 		color[c] = f * color[c];
 	}
