@@ -70,7 +70,7 @@ OpenWorld2dClient.prototype.newSinglePlayerGame = function newSinglePlayerGame (
 		document.addEventListener("keydown", this.handleKeydown.bind(this));
 		document.addEventListener("keyup", this.handleKeyup.bind(this));
 		document.addEventListener("keypress", this.handleKeypress.bind(this));
-		this.startLoop();
+		requestAnimationFrame(this.startLoop.bind(this));
 	}
 };
 
